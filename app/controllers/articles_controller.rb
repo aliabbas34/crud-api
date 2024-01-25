@@ -5,50 +5,60 @@ class ArticlesController < ApplicationController
   end
 
   def show
-    article=Article.find(params[:id])
-    if article
-      render json: article, status: 200
-    else
-      render json:{
-        error: "error finding article"
+    begin
+      article=Article.find(params[:id])
+      if article
+        render json: article, status: 200
+      end
+    rescue StandardError => e
+      render json: {
+        error:e
       }
     end
   end
 
   def create
-    article=Article.new(
+    begin
+      article=Article.new(
       title: article_params[:title],
       body: article_params[:body],
       author: article_params[:author]
-    )
-    if article.save
-      render json: article, status: 200
-    else
+      )
+      if article.save
+        render json: article, status: 200
+      end
+    rescue StandardError => e
       render json: {
-        error: "Error Creating..."
+        error:e
       }
     end
   end
 
   def update
-    article=Article.find(params[:id])
-    if article
-      article.update(title:params[:title],body:params[:body],author:params[:author])
-      render json: "Article updated successfully"
-    else
+    begin
+      article=Article.find(params[:id])
+      if article
+        article.update(title:params[:title],body:params[:body],author:params[:author])
+        render json: "Article updated successfully"
+      end
+    rescue StandardError => e
       render json:{
-        error:"Article not found in the record"
+        error:e
       }
     end
   end
 
   def destroy
-    article=Article.find(params[:id])
-    if article
-      article.destroy
-      render json:"Article deleted successfully"
-    else
-      render json:"Article doesn't exist"
+    begin
+      article=Article.find(params[:id])
+      if article
+        article.destroy
+        render json:"Article deleted successfully"
+      end
+    rescue StandardError => e
+      render json:{
+        error:e
+      }
     end
   end
 
