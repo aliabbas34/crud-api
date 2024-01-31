@@ -7,6 +7,7 @@ class ArticlesController < ApplicationController
   def show
     begin
       article=Article.find(params[:id])
+      puts (article.attributes)
       if article
         render json: article, status: 200
       end
@@ -22,7 +23,8 @@ class ArticlesController < ApplicationController
       article=Article.new(
       title: article_params[:title],
       body: article_params[:body],
-      author: article_params[:author]
+      author_id: article_params[:author_id],
+      published: article_params[:published]
       )
       if article.save
         render json: article, status: 200
@@ -38,7 +40,7 @@ class ArticlesController < ApplicationController
     begin
       article=Article.find(params[:id])
       if article
-        article.update(title:params[:title],body:params[:body],author:params[:author])
+        article.update(title:params[:title],body:params[:body],author_id:params[:author_id],published:params[:published])
         render json: "Article updated successfully"
       end
     rescue StandardError => e
@@ -67,7 +69,8 @@ class ArticlesController < ApplicationController
       params.require(:article).permit([
         :title,
         :body,
-        :author
+        :author_id,
+        :published
       ])
     end
 end
