@@ -1,6 +1,6 @@
 class ArticlesController < ApplicationController
   def index
-    articles=Article.all
+    articles=Article.joins(:author).select('articles.*, authors.name AS author_name') #implementd joins
     render json: articles, status: 200
   end
 
