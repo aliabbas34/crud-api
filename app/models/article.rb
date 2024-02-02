@@ -12,8 +12,8 @@ class Article < ApplicationRecord
   before_save ->{ # if the author is not a premium user, then he cannot publish more than five articles
     author=Author.find(self.author_id)
     if !author.premium_user # checking whether author is a premium user or not.
-      articles=Article.find_by(author_id: author.id, published: true)
-      if(articles.attributes.length>=5)
+      articles=Article.where(author_id: author.id, published: true)
+      if(articles.length>=5)
         self.published=false # setting the published attribute to false forcefully because author is not a premium user
         puts "article saved but published set to false as author is not a premium user"
       end
