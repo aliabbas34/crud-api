@@ -7,7 +7,6 @@ class ArticlesController < ApplicationController
   def show
     begin
       article=Article.find(params[:id])
-      puts (article.attributes)
       if article
         render json: article, status: 200
       end
@@ -20,13 +19,22 @@ class ArticlesController < ApplicationController
 
   def create
     begin
-      article=Article.new(
-      title: article_params[:title],
-      body: article_params[:body],
-      author_id: article_params[:author_id],
-      published: article_params[:published]
-      )
+      author_email=params[:author_email]
+      author_id=Author.where(email: author_email).pluck(:id).first
+      if !author_id
+        render json:{
+          error: {message: "author not found use another email address"}
+        }
+      end
+      article_body={
+        title: params[:title],
+        body: params[:body],
+        author_id: author_id,
+        published: params[:published]
+      }
+      article=Article.new(article_body)
       if article.save
+        puts 'check'
         render json: article, status: 200
       end
     rescue StandardError => e
@@ -40,7 +48,14 @@ class ArticlesController < ApplicationController
     begin
       article=Article.find(params[:id])
       if article
-        article.update(title:params[:title],body:params[:body],author_id:params[:author_id],published:params[:published])
+        author_email=params[:author_email]
+        author_id=Author.where(email: author_email).pluck(:id).first
+        if !author_id
+          render json:{
+            error: {message: "author not found use another email address"}
+          }
+        end
+        article.update(title:params[:title],body:params[:body],author_id:author_id,published:params[:published])
         render json: "Article updated successfully"
       end
     rescue StandardError => e
@@ -63,14 +78,4 @@ class ArticlesController < ApplicationController
       }
     end
   end
-
-  private
-    def article_params
-      params.require(:article).permit([
-        :title,
-        :body,
-        :author_id,
-        :published
-      ])
-    end
 end
