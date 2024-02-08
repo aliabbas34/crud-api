@@ -1,14 +1,17 @@
 class ArticlesController < ApplicationController
+
+  before_action :dummyLogForBeforeAction
+
   def index
     articles=Article.joins(:author).select('articles.*, authors.name AS author_name') #implementd joins
-    render json: articles, status: 200
+    render json: articles.as_json, status: 200
   end
 
   def show
     begin
       article=Article.find(params[:id])
       if article
-        render json: article, status: 200
+        render json: article.as_json, status: 200
       end
     rescue StandardError => e
       render json: {
@@ -35,7 +38,7 @@ class ArticlesController < ApplicationController
       article=Article.new(article_body)
       if article.save
         puts 'check'
-        render json: article, status: 200
+        render json: article.as_json, status: 200
       end
     rescue StandardError => e
       render json: {
@@ -78,4 +81,8 @@ class ArticlesController < ApplicationController
       }
     end
   end
+  private
+    def dummyLogForBeforeAction
+      puts "Hello, befor action! from article controller."
+    end
 end
