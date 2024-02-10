@@ -4,20 +4,22 @@ class AuthorsController < ApplicationController
 
   def index
     wantPremiumUsers=params[:premium_user]
-    if wantPremiumUsers
-      premiumAuthors=Author.where(premium_user:true)
-      render json: premiumAuthors.as_json, status: 200
-    else
+    query=params[:query]
     authors=Author.all
-    render json: authors.as_json(only: [:id, :name, :email, :premium_user]), status: 200
-    end
+    authors=authors.where(premium_user:true) if wantPremiumUsers
+    authors=authors.where("email LIKE ? OR name LIKE ?", "%#{query}%", "%#{query}%") if(query)
+    render json: authors.as_json(only: [:id,:name,:email,:premium_user]), status: 200
   end
 
   def show
     begin
       author=Author.find_by(email: params[:email]) #finding author by email(PR change)
       if author
-        render json: author.as_json, status: 200
+        render json: author.as_json(only: [:id, :name,:email,:premium_user]), status: 200
+      else
+        render json:{
+          error: {message: "author not found"}
+        }
       end
     rescue StandardError => e
       render json:{
@@ -35,6 +37,10 @@ class AuthorsController < ApplicationController
       )
       if author.save
         render json: author.as_json, status: 200
+      else
+        render json:{
+          error:{message: author.errors.full_messages}
+        }
       end
     rescue StandardError=>e
       render json:{
@@ -42,11 +48,7 @@ class AuthorsController < ApplicationController
       }
     end
   end
-  def search
-    query=params[:query]
-    authors=Author.where("email LIKE ? OR name LIKE ?", "%#{query}%", "%#{query}%")
-    render json: authors.as_json, status: 200
-  end
+
   private
     def author_params
       params.require(:author).permit(:name, :email, :premium_user)

@@ -15,6 +15,7 @@ RSpec.describe Author, type: :model do
       premium_user:true
     })
     expect(author).to_not be_valid
+    expect(author.errors[:name]).to include('author name not present')
   end
   it "is not valid, because the name length exceeds the limit 50" do
     author=Author.new({
@@ -23,6 +24,7 @@ RSpec.describe Author, type: :model do
       premium_user:true
     })
     expect(author).to_not be_valid
+    expect(author.errors[:name]).to include('maximum allowed length is 50 characters')
   end
   it "is not valid, because email is nil" do
     author=Author.new({
@@ -30,6 +32,7 @@ RSpec.describe Author, type: :model do
       premium_user:true
     })
     expect(author).to_not be_valid
+    expect(author.errors[:email]).to include('author email not present')
   end
   it "is not valid, because email length exceeds the limit 255" do
     author=Author.new({
@@ -38,6 +41,7 @@ RSpec.describe Author, type: :model do
       premium_user: true
     })
     expect(author).to_not be_valid
+    expect(author.errors[:email]).to include('maximum allowed length is 255 characters')
   end
   it "is not valid, because email used is not unique" do
     Author.create({
@@ -51,6 +55,7 @@ RSpec.describe Author, type: :model do
       premium_user: true
     })
     expect(author).to_not be_valid
+    expect(author.errors[:email]).to include('User already registered use a different email')
   end
   it "is not valid, because premium_user is nil" do
     author=Author.new({

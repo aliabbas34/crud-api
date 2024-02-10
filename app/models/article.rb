@@ -1,8 +1,8 @@
 class Article < ApplicationRecord
   #validations
-  validates :title, presence: true, length: {maximum:20, to_long:"maximum allowed length is %{count} characters"} #added length validation to title (PR change)
-  validates :body, presence: true, length: {minimum:10, to_short:"minimum is %{count} characters"}
-  validates :author_id, presence: true
+  validates :title, presence: {message:"article title not present"}, length: {maximum:20, message:"maximum allowed length is %{count} characters"} #added length validation to title (PR change)
+  validates :body, presence: {message:"article body not present"}, length: {minimum:10, message:"minimum is %{count} characters"}
+  validates :author_id, presence: {message:"article's author's id not present"}
   validates :published, inclusion: [true, false]
 
   #association
