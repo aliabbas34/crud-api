@@ -1,6 +1,6 @@
 class AuthorsController < ApplicationController
 
-  before_action :dummyLogForBeforeAction #before action implemented.
+  before_action :dummyLogForBeforeAction 
 
   def index
     wantPremiumUsers=params[:premium_user]
@@ -13,7 +13,7 @@ class AuthorsController < ApplicationController
 
   def show
     begin
-      author=Author.find_by(email: params[:email]) #finding author by email(PR change)
+      author=Author.find_by(email: params[:email])
       if author
         render json: author.as_json(only: [:id, :name,:email,:premium_user]), status: 200
       else
