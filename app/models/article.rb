@@ -11,7 +11,6 @@ class Article < ApplicationRecord
   #callback method
   def logic
      # if the author is not a premium user, then he cannot publish more than five articles
-    puts self.author_id
     author=Author.find(self.author_id)
     if !author.premium_user
       articles=Article.where(author_id: author.id, published: true)
@@ -22,5 +21,5 @@ class Article < ApplicationRecord
     end
   end
   #callback
-  before_save :logic 
+  before_save :logic
 end

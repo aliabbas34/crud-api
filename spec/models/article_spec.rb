@@ -2,17 +2,8 @@ require 'rails_helper'
 
 RSpec.describe Article, type: :model do
   before do
-    @author=Author.create({
-      name:'name',
-      email:'email@mail.com',
-      premium_user:true
-    })
-    @article=Article.new({
-      title:"check",
-      body:"article body check",
-      author_id:@author.id,
-      published:true
-    })
+    @author=build_stubbed(:author)
+    @article=build(:article, author: @author)
   end
   it "is valid with valid attributes" do
     expect(@article).to be_valid
@@ -47,7 +38,30 @@ RSpec.describe Article, type: :model do
     expect(@article).not_to be_valid
   end
   it "belongs to association check" do
-    @article.author_id=2
+    @article.author_id=123
     expect(@article).not_to be_valid
+  end
+
+  describe "#logic" do
+    context "When author is a premium user and has published five articles" do
+      let(:author) {create(:author,premium_user:true)}
+      before do
+        create_list(:article,5,author:author)
+      end
+      it "can publish more articles" do
+        article=create(:article,author: author)
+        expect(article.published).to be_truthy
+      end
+    end
+    context "When author is not a premium user and have published 5 articles" do
+      let(:author) {create(:author,premium_user:false)}
+      before do
+        create_list(:article,5,author:author)
+      end
+      it "can not publish another article but can create an article" do
+        article=create(:article,author: author, published:true)
+        expect(article.published).to be_falsy
+      end
+    end
   end
 end
