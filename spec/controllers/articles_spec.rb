@@ -53,7 +53,8 @@ RSpec.describe ArticlesController, type: :controller do
           title:"test",
           body:"body of test article",
           published:true,
-          author_email:"test@mail.com"
+          author_email:"test@mail.com",
+          free:true
         }
         post :create,params:valid_parameters
         article={
@@ -71,7 +72,8 @@ RSpec.describe ArticlesController, type: :controller do
           title:"test",
           body:"body of test article",
           published:true,
-          author_email:"undefined@mail.com"
+          author_email:"undefined@mail.com",
+          free:true
         }
         post :create,params:valid_parameters
         expect(response.body).to include("author not found use another email address")
@@ -90,7 +92,8 @@ RSpec.describe ArticlesController, type: :controller do
           title:"test",
           body:"body of test article",
           published:true,
-          author_email:"test@mail.com"
+          author_email:"test@mail.com",
+          free:true
         }
         put :update,params:valid_parameters
         expect(response.body).to include("Article updated successfully")
@@ -106,7 +109,8 @@ RSpec.describe ArticlesController, type: :controller do
           title:"test",
           body:"body of test article",
           published:true,
-          author_email:"undefined@mail.com"
+          author_email:"undefined@mail.com",
+          free:true
         }
         put :update,params:valid_parameters
         expect(response.body).to include("author not found use another email address")

@@ -4,5 +4,6 @@ FactoryBot.define do
     body { 'Sample Body' }
     association :author
     published { true }
+    free { true }
   end
 end

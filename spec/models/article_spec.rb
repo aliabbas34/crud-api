@@ -37,6 +37,10 @@ RSpec.describe Article, type: :model do
     @article.published=nil
     expect(@article).not_to be_valid
   end
+  it "is not valid because free not present" do
+    @article.free=nil
+    expect(@article).not_to be_valid
+  end
   it "belongs to association check" do
     @article.author_id=123
     expect(@article).not_to be_valid

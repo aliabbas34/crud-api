@@ -45,7 +45,8 @@ class ArticlesController < ApplicationController
           title: params[:title],
           body: params[:body],
           author_id: author_id,
-          published: params[:published]
+          published: params[:published],
+          free:params[:free]
         }
         article=Article.new(article_body)
         if article.save
@@ -75,7 +76,7 @@ class ArticlesController < ApplicationController
           }
         else
           author_id=author.id
-          if article.update(title:params[:title],body:params[:body],author_id:author_id,published:params[:published])
+          if article.update(title:params[:title],body:params[:body],author_id:author_id,published:params[:published],free:params[:free])
             render json:{
               message:"Article updated successfully"
             }

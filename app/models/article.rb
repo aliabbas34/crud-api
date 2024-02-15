@@ -4,6 +4,7 @@ class Article < ApplicationRecord
   validates :body, presence: {message:"article body not present"}, length: {minimum:10, message:"minimum is %{count} characters"}
   validates :author_id, presence: {message:"article's author's id not present"}
   validates :published, inclusion: [true, false]
+  validates :free, inclusion: [true, false]
 
   #association
   belongs_to :author # An article has one author hence it belongs to a single author
