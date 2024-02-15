@@ -3,8 +3,15 @@ class ArticlesController < ApplicationController
   before_action :dummyLogForBeforeAction
 
   def index
-    articles=Article.eager_load(:author).limit(params[:per_page])
-    render json: articles.as_json(include: [author: {only:[:name]}], only:[:id,:title,:body,:published]), status: 200
+    per_page=params[:per_page]
+    if per_page
+      articles=Article.eager_load(:author).limit(params[:per_page])
+      render json: articles.as_json(include: [author: {only:[:name]}], only:[:id,:title,:body,:published]), status: 200
+    else
+      render json:{
+        message:"per_page param missing"
+      }
+    end
   end
 
   def show
@@ -14,7 +21,7 @@ class ArticlesController < ApplicationController
         render json: article.as_json(include: [author:{only:[:name]}], only:[:id,:title,:body,:published]), status: 200
       else
         render json:{
-          error:{message: "article not found"}
+          message: "article not found"
         }
       end
     rescue StandardError => e
@@ -27,13 +34,13 @@ class ArticlesController < ApplicationController
   def create
     begin
       author_email=params[:author_email]
-      author_id=Author.find_by(email: author_email)
-      if !author_id
+      author=Author.find_by(email: author_email)
+      if !author
         render json:{
-          error: {message: "author not found use another email address"}
+          message: "author not found use another email address"
         }
       else
-        author_id=author_id.id
+        author_id=author.id
         article_body={
           title: params[:title],
           body: params[:body],
@@ -42,10 +49,10 @@ class ArticlesController < ApplicationController
         }
         article=Article.new(article_body)
         if article.save
-          render json: article.as_json, status: 200
+          render json: article.as_json(only:[:title,:body,:published,:author_id]), status: 200
         else
           render json:{
-            error:{message: article.errors.full_messages}
+            message: article.errors.full_messages
           }
         end
       end
@@ -61,15 +68,17 @@ class ArticlesController < ApplicationController
       article=Article.find(params[:id])
       if article
         author_email=params[:author_email]
-        author_id=Author.find_by(email: author_email)
-        if !author_id
+        author=Author.find_by(email: author_email)
+        if !author
           render json:{
-            error: {message: "author not found use another email address"}
+            message: "author not found use another email address"
           }
         else
-          author_id=author_id.id
+          author_id=author.id
           if article.update(title:params[:title],body:params[:body],author_id:author_id,published:params[:published])
-            render json: "Article updated successfully"
+            render json:{
+              message:"Article updated successfully"
+            }
           else
             render json:{
               error:{ message: article.errors.full_messages}
