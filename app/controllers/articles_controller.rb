@@ -1,14 +1,21 @@
 class ArticlesController < ApplicationController
+
+  before_action :dummyLogForBeforeAction
+
   def index
-    articles=Article.all
-    render json: articles, status: 200
+    articles=Article.eager_load(:author).limit(params[:per_page])
+    render json: articles.as_json(include: [author: {only:[:name]}], only:[:id,:title,:body,:published]), status: 200
   end
 
   def show
     begin
-      article=Article.find(params[:id])
+      article=Article.includes(:author).find(params[:id])
       if article
-        render json: article, status: 200
+        render json: article.as_json(include: [author:{only:[:name]}], only:[:id,:title,:body,:published]), status: 200
+      else
+        render json:{
+          error:{message: "article not found"}
+        }
       end
     rescue StandardError => e
       render json: {
@@ -19,13 +26,28 @@ class ArticlesController < ApplicationController
 
   def create
     begin
-      article=Article.new(
-      title: article_params[:title],
-      body: article_params[:body],
-      author: article_params[:author]
-      )
-      if article.save
-        render json: article, status: 200
+      author_email=params[:author_email]
+      author_id=Author.find_by(email: author_email)
+      if !author_id
+        render json:{
+          error: {message: "author not found use another email address"}
+        }
+      else
+        author_id=author_id.id
+        article_body={
+          title: params[:title],
+          body: params[:body],
+          author_id: author_id,
+          published: params[:published]
+        }
+        article=Article.new(article_body)
+        if article.save
+          render json: article.as_json, status: 200
+        else
+          render json:{
+            error:{message: article.errors.full_messages}
+          }
+        end
       end
     rescue StandardError => e
       render json: {
@@ -38,8 +60,26 @@ class ArticlesController < ApplicationController
     begin
       article=Article.find(params[:id])
       if article
-        article.update(title:params[:title],body:params[:body],author:params[:author])
-        render json: "Article updated successfully"
+        author_email=params[:author_email]
+        author_id=Author.find_by(email: author_email)
+        if !author_id
+          render json:{
+            error: {message: "author not found use another email address"}
+          }
+        else
+          author_id=author_id.id
+          if article.update(title:params[:title],body:params[:body],author_id:author_id,published:params[:published])
+            render json: "Article updated successfully"
+          else
+            render json:{
+              error:{ message: article.errors.full_messages}
+            }
+          end
+        end
+      else
+        render json:{
+          error:{message: "article not found"}
+        }
       end
     rescue StandardError => e
       render json:{
@@ -52,8 +92,17 @@ class ArticlesController < ApplicationController
     begin
       article=Article.find(params[:id])
       if article
-        article.destroy
-        render json:"Article deleted successfully"
+        if article.destroy
+          render json:"Article deleted successfully"
+        else
+          render json:{
+            error:{message: article.errors.full_messages}
+          }
+        end
+      else
+        render json:{
+          error: {message: "artilce not found"}
+        }
       end
     rescue StandardError => e
       render json:{
@@ -61,13 +110,8 @@ class ArticlesController < ApplicationController
       }
     end
   end
-
   private
-    def article_params
-      params.require(:article).permit([
-        :title,
-        :body,
-        :author
-      ])
+    def dummyLogForBeforeAction
+      puts "Hello, befor action! from article controller."
     end
 end
