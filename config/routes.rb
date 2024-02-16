@@ -9,6 +9,11 @@ Rails.application.routes.draw do
   delete 'articles/:id', to: "articles#destroy"
   resources :articles, only: [:index, :show, :create, :update]
 
+  #user routes
+  get 'users', to:"users#index"
+  post 'user', to: "users#create"
+  get 'user/:id/articles', to:"users#show"
+
   # Defines the root path route ("/")
   # root "articles#index"
 end

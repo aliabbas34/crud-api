@@ -28,6 +28,12 @@ RSpec.describe User, type: :model do
     expect(user).not_to be_valid
     expect(user.errors[:email]).to include("email length should be between 10 to 255 characters")
   end
+  it "is not valid because the email is already used" do
+    user_a=create(:user,email:"abc@mail.com")
+    user_b=build(:user,email:"abc@mail.com")
+    expect(user_b).not_to be_valid
+    expect(user_b.errors[:email]).to include("user already registered use a different email")
+  end
   it "is not valid if paid_user is nil" do
     user=build(:user,paid_user:nil)
     expect(user).not_to be_valid

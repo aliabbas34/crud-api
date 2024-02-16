@@ -8,9 +8,8 @@ class ArticlesController < ApplicationController
       articles=Article.eager_load(:author).limit(params[:per_page])
       render json: articles.as_json(include: [author: {only:[:name]}], only:[:id,:title,:body,:published]), status: 200
     else
-      render json:{
-        message:"per_page param missing"
-      }
+      articles=Article.eager_load(:author)
+      render json: articles.as_json(include: [author: {only:[:name]}], only:[:id,:title,:body,:published,:free]), status: 200
     end
   end
 
@@ -18,7 +17,7 @@ class ArticlesController < ApplicationController
     begin
       article=Article.includes(:author).find(params[:id])
       if article
-        render json: article.as_json(include: [author:{only:[:name]}], only:[:id,:title,:body,:published]), status: 200
+        render json: article.as_json(include: [author:{only:[:name]}], only:[:id,:title,:body,:published,:free]), status: 200
       else
         render json:{
           message: "article not found"

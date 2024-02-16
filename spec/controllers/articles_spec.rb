@@ -3,16 +3,27 @@ require 'rails_helper'
 RSpec.describe ArticlesController, type: :controller do
   describe "GET #index" do
     context "When per_page param is present in params" do
+      before do
+        author=create(:author,email:"test@mail.com")
+        12.times do
+          create(:article,author:author)
+        end
+      end
       it "returns 10 articles" do
         get :index, params:{per_page:10}
         expect(response).to have_http_status(200)
-        expect(response.body).to include("id","title","body","published","author","name")
+        expect(JSON.parse(response.body).count).to eq(10)
       end
     end
     context "when per_page param is not present in params" do
-      it "returns message per_page param missing" do
+      before do
+        author=create(:author,email:"test@mail.com")
+        create(:article,author:author)
+      end
+      it "returns all articles" do
         get :index
-        expect(response.body).to include("per_page param missing")
+        article=Article.all
+        expect(JSON.parse(response.body).count).to eq(article.count)
       end
     end
   end
@@ -29,6 +40,7 @@ RSpec.describe ArticlesController, type: :controller do
           title:@article.title,
           body:@article.body,
           published:@article.published,
+          free:@article.free,
           author:{
             name:@author.name
           }
