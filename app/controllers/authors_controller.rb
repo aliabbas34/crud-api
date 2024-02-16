@@ -1,6 +1,6 @@
 class AuthorsController < ApplicationController
 
-  before_action :dummyLogForBeforeAction 
+  before_action :dummyLogForBeforeAction
 
   def index
     wantPremiumUsers=params[:premium_user]
@@ -13,12 +13,19 @@ class AuthorsController < ApplicationController
 
   def show
     begin
-      author=Author.find_by(email: params[:email])
-      if author
-        render json: author.as_json(only: [:id, :name,:email,:premium_user]), status: 200
+      email=params[:email]
+      if email
+        author=Author.find_by(email:email)
+        if author
+          render json: author.as_json(only: [:id, :name,:email,:premium_user]), status: 200
+        else
+          render json:{
+            message: "author not found"
+          }
+        end
       else
         render json:{
-          error: {message: "author not found"}
+          message:"email not found in params"
         }
       end
     rescue StandardError => e
@@ -36,10 +43,10 @@ class AuthorsController < ApplicationController
         premium_user: author_params[:premium_user]
       )
       if author.save
-        render json: author.as_json, status: 200
+        render json: author.as_json(only:[:name,:email,:premium_user]), status: 200
       else
         render json:{
-          error:{message: author.errors.full_messages}
+          message: author.errors.full_messages
         }
       end
     rescue StandardError=>e
